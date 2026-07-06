@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini Forum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --bg-softer: #020617;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.14);
+      --accent-soft2: rgba(59, 130, 246, 0.35);
+      --text: #e5e7eb;
+      --text-soft: #9ca3af;
+      --border: #1f2937;
+      --danger: #f97373;
+      --success: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top left, #1f2937, #020617 60%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1200px;
+      background: linear-gradient(135deg, #020617, #020617 40%, #0b1120);
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.9);
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 290px;
+      background: radial-gradient(circle at top, #020617 0, #020617 35%, #020617);
+      border-right: 1px solid rgba(55, 65, 81, 0.6);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background:
+        conic-gradient(from 160deg, #3b82f6, #a855f7, #ec4899, #f97316, #22c55e, #3b82f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 18px rgba(59, 130, 246, 0.7);
+    }
+
+    .logo-icon-inner {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 2px solid rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at top, #0f172a, #020617);
+      position: relative;
+    }
+
+    .logo-icon-inner::after {
+      content: "";
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      border: 2px solid rgba(96, 165, 250, 0.7);
+      top: 2px;
+      left: 6px;
+      box-shadow: 0 0 12px rgba(96, 165, 250, 0.9);
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-text h1 {
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .logo-text span {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .tagline {
+      font-size: 12px;
+      color: var(--text-soft);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px dashed rgba(75, 85, 99, 0.7);
+      line-height: 1.5;
+    }
+
+    .user-box {
+      background: radial-gradient(circle at top left, #0b1120, #020617);
+      border-radius: 14px;
+      border: 1px solid rgba(55, 65, 81, 0.8);
+      padding: 10px 10px 12px;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .user-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .user-row-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top, #1d4ed8, #020617);
+      border: 1px solid rgba(59, 130, 246, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    select {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      color: var(--text);
+      font-size: 12px;
+      padding: 4px 10px;
+      outline: none;
+    }
+
+    .status-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(16, 185, 129, 0.1);
+      color: #6ee7b7;
+      border: 1px solid rgba(45, 212, 191, 0.5);
+    }
+
+    .user-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .user-meta strong {
+      color: var(--text);
+    }
+
+    .sidebar-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 8px 10px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text);
+      transition: 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      border-color: rgba(129, 140, 248, 0.8);
+      box-shadow:
+        0 10px 30px rgba(37, 99, 235, 0.4),
+        0 0 18px rgba(59, 130, 246, 0.7);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 12px 32px rgba(37, 99, 235, 0.6),
+        0 0 22px rgba(59, 130, 246, 0.9);
+    }
+
+    .btn:hover {
+      border-color: rgba(148, 163, 184, 0.9);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .btn-icon {
+      font-size: 14px;
+    }
+
+    .search-box {
+      margin-top: 4px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 7px 26px 7px 10px;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .search-box span {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+      margin-top: 6px;
+      margin-bottom: 4px;
+    }
+
+    .category-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .category-item {
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      cursor: pointer;
+      transition: 0.16s ease;
+    }
+
+    .category-item:hover {
+      border-color: rgba(96, 165, 250, 0.8);
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    .category-item.active {
+      border-color: rgba(96, 165, 250, 0.9);
+      background: rgba(37, 99, 235, 0.18);
+      box-shadow: 0 0 14px rgba(59, 130, 246, 0.4);
+    }
+
+    .category-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.9);
+      margin-right: 6px;
+    }
+
+    .category-name {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .category-count {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .small-info {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+      line-height: 1.4;
+    }
+
+    .small-info strong {
+      color: var(--accent);
+    }
+
+    /* MAIN */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 18px 16px 18px;
+      gap: 12px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .breadcrumbs {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .breadcrumbs span {
+      color: var(--text);
+    }
+
+    .chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .chip-primary {
+      border-color: rgba(59, 130, 246, 0.8);
+      background: rgba(37, 99, 235, 0.19);
+      box-shadow: 0 0 16px rgba(37, 99, 235, 0.5);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-text {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-soft);
+    }
+
+    /* CONTENT SPLIT */
+    .content-row {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
+      gap: 10px;
+      height: calc(100% - 46px);
+      min-height: 380px;
+    }
+
+    .threads-card,
+    .thread-view-card,
+    .notifications-card {
+      background: radial-gradient(circle at top left, #020617, #020617 55%, #020617);
+      border-radius: 16px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    .card-header span {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .thread-list {
+      margin-top: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    .thread-item {
+      padding: 9px 9px 8px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) 92px;
+      gap: 6px;
+      cursor: pointer;
+      background: rgba(15, 23, 42, 0.96);
+      transition: 0.15s ease;
+    }
+
+    .thread-item:hover {
+      background: rgba(17, 24, 39, 0.96);
+      box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.25);
+    }
+
+    .thread-title {
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .thread-title .badge-cat {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 1);
+      color: var(--text-soft);
+    }
+
+    .thread-meta {
+      margin-top: 3px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .thread-meta strong {
+      color: var(--text);
+    }
+
+    .thread-stats {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      align-items: flex-end;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .stat-pill {
+      border-radius: 999px;
+      padding: 2px 6px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stat-pill strong {
+      color: var(--text);
+    }
+
+    .stat-pill.hot {
+      border-color: rgba(249, 115, 22, 0.8);
+      background: rgba(248, 113, 113, 0.06);
+    }
+
+    .empty-state {
+      font-size: 12px;
+      padding: 10px;
+      text-align: center;
+      color: var(--text-soft);
+    }
+
+    /* THREAD VIEW */
+    .thread-view-card {
+      max-height: 420px;
+    }
+
+    .thread-header {
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      padding-bottom: 6px;
+    }
+
+    .thread-header-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .thread-header-meta {
+      font-size: 11px;
+      color: var(--text-soft);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .thread-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 3px;
+    }
+
+    .tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 1);
+      color: var(--text-soft);
+    }
+
+    .tag-primary {
+      border-color: rgba(96, 165, 250, 0.9);
+      background: rgba(37, 99, 235, 0.2);
+      color: var(--text);
+    }
+
+    .thread-body {
+      margin-top: 6px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-soft);
+      padding: 6px 4px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .thread-actions {
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .btn-ghost {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-soft);
+      transition: 0.15s ease;
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(96, 165, 250, 0.9);
+      color: var(--text);
+      background: rgba(15, 23, 42, 1);
+    }
+
+    .posts-list {
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .post-item {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr);
+      gap: 8px;
+      padding: 6px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      position: relative;
+    }
+
+    .post-meta-col {
+      font-size: 11px;
+      color: var(--text-soft);
+      border-right: 1px solid rgba(31, 41, 55, 0.9);
+      padding-right: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .post-meta-col strong {
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .post-body-col {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .post-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .label-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      font-size: 10px;
+      background: rgba(15, 23, 42, 1);
+    }
+
+    .badge-op {
+      font-size: 10px;
+      padding: 2px 5px;
+      border-radius: 999px;
+      background: rgba(74, 222, 128, 0.16);
+      border: 1px solid rgba(34, 197, 94, 0.7);
+      color: #bbf7d0;
+    }
+
+    .new-reply {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(55, 65, 81, 0.9);
+    }
+
+    .new-reply textarea {
+      width: 100%;
+      min-height: 52px;
+      resize: vertical;
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 10px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 6px 8px;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .new-reply-row {
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    /* NOTIFICATIONS */
+    .notifications-card {
+      max-height: 420px;
+    }
+
+    .notif-list {
+      margin-top: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .notif-item {
+      font-size: 12px;
+      padding: 6px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .notif-meta {
+      font-size: 10px;
+      color: var(--text-soft);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .notif-label {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.8);
+      background: rgba(37, 99, 235, 0.15);
+      color: #bfdbfe;
+    }
+
+    .notif-empty {
+      font-size: 12px;
+      color: var(--text-soft);
+      padding: 8px;
+      text-align: center;
+    }
+
+    .inline-link {
+      color: #93c5fd;
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+    }
+
+    /* NEW THREAD MODAL */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      background: radial-gradient(circle at top left, #020617, #020617 60%, #020617);
+      border-radius: 18px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 12px 12px 14px;
+      box-shadow: 0 22px 55px rgba(15, 23, 42, 0.95);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .modal-header h3 {
+      font-size: 15px;
+    }
+
+    .modal-header span {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .close-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 13px;
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text-soft);
+    }
+
+    .close-btn:hover {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-size: 13px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .field label {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 10px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 6px 8px;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .modal-footer {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .error-text {
+      color: #fecaca;
+      font-size: 11px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      body {
+        padding: 8px;
+      }
+      .app {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(55, 65, 81, 0.7);
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .sidebar > * {
+        flex: 1 1 160px;
+      }
+      .content-row {
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+      }
+    }
+
+    @media (max-width: 700px) {
+      .content-row {
+        grid-template-columns: minmax(0, 1fr);
+        height: auto;
+      }
+      .thread-view-card,
+      .notifications-card {
+        max-height: unset;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .sidebar {
+        gap: 8px;
+      }
+      .logo-text h1 {
+        font-size: 16px;
+      }
+      .threads-card,
+      .thread-view-card,
+      .notifications-card {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div>
+      <div class="logo">
+        <div class="logo-icon">
+          <div class="logo-icon-inner"></div>
+        </div>
+        <div class="logo-text">
+          <h1>MiniForum</h1>
+          <span>Gerçek zamanlı etkileşim hissi</span>
+        </div>
+      </div>
+      <p class="tagline">
+        Forum gibi çalışan tek sayfalık demo. Konu aç, cevap yaz, beğen, filtrele,
+        arama yap. Tüm veriler tarayıcıda saklanır (<strong>localStorage</strong>).
+      </p>
+    </div>
+
+    <div class="user-box">
+      <div class="user-row">
+        <div class="user-row-left">
+          <div class="avatar" id="currentUserAvatar">U</div>
+          <div>
+            <div style="font-size:13px;">Aktif Kullanıcı</div>
+            <div style="font-size:11px;color:var(--text-soft);" id="currentUserLabel"></div>
+          </div>
+        </div>
+        <div class="status-pill">● Çevrimiçi</div>
+      </div>
+      <div class="user-meta">
+        <div>Rol: <strong id="currentUserRole">Üye</strong></div>
+        <div>Seviye: <strong>1</strong></div>
+      </div>
+      <div class="user-meta">
+        <div>Bugün: <strong id="todayStats">0 gönderi</strong></div>
+        <div>Toplam: <strong id="totalStats">0 gönderi</strong></div>
+      </div>
+      <div style="margin-top:4px; display:flex; align-items:center; gap:6px;">
+        <span style="font-size:11px;color:var(--text-soft);">Kullanıcı seç:</span>
+        <select id="userSelect"></select>
+      </div>
+    </div>
+
+    <div class="sidebar-actions">
+      <button class="btn btn-primary" id="newThreadBtn">
+        <span class="btn-icon">✏️</span>
+        Yeni Konu Aç
+      </button>
+      <button class="btn" id="resetForumBtn" title="Tüm verileri sıfırla">
+        <span class="btn-icon">🧹</span>
+        Demo verilerini yenile
+      </button>
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Konularda ara..." />
+      <span>⌕</span>
+    </div>
+
+    <div>
+      <div class="section-title">Kategoriler</div>
+      <div id="categoryList" class="category-list"></div>
+      <div class="small-info">
+        Toplam <strong id="threadCountLabel">0</strong> konu,
+        <strong id="postCountLabel">0</strong> mesaj.
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="breadcrumbs">
+          Forum &gt; <span id="breadcrumbCategory">Tümü</span>
+        </div>
+        <div class="chips">
+          <div class="chip chip-primary" id="chipFilterInfo">Filtre: Tüm konular</div>
+          <div class="chip" id="chipSearchInfo">Arama yok</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="pill-text" id="activeThreadInfo">
+          Seçili konu yok
+        </div>
+        <div class="pill-text">
+          Oturum: <span id="sessionTime">0 dk</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-row">
+      <!-- THREAD LIST + VIEW -->
+      <div class="threads-card">
+        <div class="card-header">
+          <div>
+            Konular
+            <span id="threadSummaryLabel"></span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="btn-ghost" id="sortLatestBtn">⏱ En yeni</button>
+            <button class="btn-ghost" id="sortHotBtn">🔥 Popüler</button>
+          </div>
+        </div>
+
+        <div class="thread-list" id="threadList"></div>
+
+        <div style="margin-top:6px;">
+          <small class="hint">
+            İpucu: Bir konuya tıklayın, sağ tarafta detaylar ve mesajlar açılır. Bütün
+            işlemler (beğeni, cevap, yeni konu) sadece bu sayfa içinde çalışır.
+          </small>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: THREAD VIEW + NOTIFS -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <section class="thread-view-card">
+          <div class="card-header">
+            <div>
+              Konu Detayı
+              <span id="threadViewHint">(Bir konu seçin)</span>
+            </div>
+            <div style="display:flex;gap:4px;">
+              <button class="btn-ghost" id="backToListBtn" style="display:none;">← Listeye dön</button>
+            </div>
+          </div>
+
+          <div id="threadViewContent" style="flex:1;display:flex;flex-direction:column;">
+            <div class="empty-state">
+              Henüz bir konu seçmedin. Soldaki listeden birine tıkla veya
+              <span class="inline-link" id="openNewThreadFromEmpty">yeni konu aç</span>.
+            </div>
+          </div>
+        </section>
+
+        <section class="notifications-card">
+          <div class="card-header">
+            <div>
+              Bildirimler
+              <span>(Sadece bu oturumda)</span>
+            </div>
+            <button class="btn-ghost" id="clearNotificationsBtn">Temizle</button>
+          </div>
+
+          <div class="notif-list" id="notifList">
+            <div class="notif-empty">
+              Şu an bildirimin yok. Bir şeyler yapmaya başla; burada özetini göreceksin.
+            </div>
+          </div>
+
+          <div style="margin-top:4px;">
+            <small class="hint">
+              Veriler tarayıcıda saklanır, sayfayı yenilesen bile konuların kalır.
+              İstersen soldaki <strong>Demo verilerini yenile</strong> butonu ile sıfırlayabilirsin.
+            </small>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- NEW THREAD MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3>Yeni Konu Aç</h3>
+        <span>Kısa, açıklayıcı bir başlık seç.</span>
+      </div>
+      <button class="close-btn" id="closeModalBtn">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Başlık</label>
+        <input type="text" id="newThreadTitle" placeholder="Ör: Asenkron motor kaynağında gerilim bozulması" />
+      </div>
+      <div class="field">
+        <label>Kategori</label>
+        <select id="newThreadCategory"></select>
+      </div>
+      <div class="field">
+        <label>İlk mesaj (konu metni)</label>
+        <textarea id="newThreadBody" placeholder="Detayları buraya yaz..."></textarea>
+      </div>
+      <div class="field">
+        <label>Etiketler (virgülle ayır)</label>
+        <input type="text" id="newThreadTags" placeholder="ör: matlab, simülasyon, proje" />
+      </div>
+      <div class="modal-footer">
+        <div>
+          <span class="error-text" id="modalError"></span>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-ghost" id="draftBtn">Taslak kaydetme</button>
+          <button class="btn btn-primary" id="createThreadBtn">
+            Oluştur
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /*************** DATA VE LOCALSTORAGE ***************/
+  const STORAGE_KEY = "mini_forum_demo_v1";
+
+  const initialData = () => ({
+    users: [
+      { id: "furkan", name: "Furkan", role: "Admin" },
+      { id: "ummu", name: "Ummu", role: "Üye" },
+      { id: "guest", name: "Misafir", role: "Yeni Üye" }
+    ],
+    categories: [
+      { id: "genel", name: "Genel Sohbet" },
+      { id: "yazilim", name: "Yazılım & Kod" },
+      { id: "elektrik", name: "Elektrik & Enerji" },
+      { id: "akademik", name: "Akademik / Proje" },
+      { id: "offtopic", name: "Off-Topic" }
+    ],
+    threads: [
+      {
+        id: "t1",
+        title: "Asenkron motor kaynaklı gerilim bozulması simülasyonu",
+        categoryId: "elektrik",
+        authorId: "furkan",
+        createdAt: Date.now() - 1000 * 60 * 60 * 5,
+        lastActivityAt: Date.now() - 1000 * 60 * 60 * 2,
+        likes: 6,
+        tags: ["simülasyon", "matlab", "proje"],
+        body: "Asenkron motor kaynaklı gerilim bozulmalarını MATLAB ortamında simüle ediyorum. Tristör kontrollü statik var kompanzasyon sistemi ile ilgili deneyimlerinizi paylaşır mısınız?",
+        posts: [
+          {
+            id: "p1",
+            authorId: "furkan",
+            createdAt: Date.now() - 1000 * 60 * 60 * 5,
+            body: "Simülasyonun ilk versiyonunda sadece temel bozulma bileşenlerini dikkate aldım. Harmonik analizi genişletmeyi düşünüyorum.",
+            likes: 3
+          },
+          {
+            id: "p2",
+            authorId: "ummu",
+            createdAt: Date.now() - 1000 * 60 * 60 * 3,
+            body: "Yapay zeka ile adaptif bir kontrol katmanı ekleyebilirsin. Özellikle değişken yük koşullarında sistemin verdiği tepkiyi iyileştirir.",
+            likes: 4
+          }
+        ]
+      },
+      {
+        id: "t2",
+        title: "2209 TÜBİTAK proje fikri beyin fırtınası",
+        categoryId: "akademik",
+        authorId: "furkan",
+        createdAt: Date.now() - 1000 * 60 * 60 * 8,
+        lastActivityAt: Date.now() - 1000 * 60 * 60 * 4,
+        likes: 9,
+        tags: ["tübitak", "proje", "öneri"],
+        body: "Disiplinler arası (bilgisayar + elektrik) bir proje konusunda fikirlerinizi bekliyorum. Hem gösterişli hem de uygulanabilir olsun.",
+        posts: [
+          {
+            id: "p3",
+            authorId: "guest",
+            createdAt: Date.now() - 1000 * 60 * 60 * 7,
+            body: "Elektrik tarafı için gerçek zamanlı güç kalitesi izleme sistemi olabilir. Bilgisayar tarafı da arayüz + veri analizi ile destekler.",
+            likes: 2
+          }
+        ]
+      },
+      {
+        id: "t3",
+        title: "Forum demosu hakkında geri bildirim",
+        categoryId: "genel",
+        authorId: "guest",
+        createdAt: Date.now() - 1000 * 60 * 30,
+        lastActivityAt: Date.now() - 1000 * 60 * 5,
+        likes: 1,
+        tags: ["demo", "arayüz"],
+        body: "Bu mini forumu deniyorsan, lütfen neyin eksik olduğunu yaz. Tasarım, etkileşim, hız vs.",
+        posts: []
+      }
+    ],
+    stats: {
+      createdAt: Date.now(),
+      totalPosts: 3,
+      totalThreads: 3
+    }
+  });
+
+  let state = {
+    data: null,
+    currentUserId: "furkan",
+    activeCategoryId: "all",
+    activeThreadId: null,
+    searchTerm: "",
+    sortMode: "latest", // 'latest' | 'hot'
+    notifications: [],
+    sessionStart: Date.now(),
+    todayPostCount: 0
+  };
+
+  function loadData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      state.data = initialData();
+      saveData();
+    } else {
+      try {
+        state.data = JSON.parse(raw);
+      } catch (e) {
+        console.error("Data parse error, resetting", e);
+        state.data = initialData();
+        saveData();
+      }
+    }
+  }
+
+  function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+  }
+
+  function resetData() {
+    state.data = initialData();
+    state.activeCategoryId = "all";
+    state.activeThreadId = null;
+    state.searchTerm = "";
+    state.sortMode = "latest";
+    state.notifications = [];
+    state.todayPostCount = 0;
+    saveData();
+    renderAll();
+    pushNotification("Sistem", "Demo verileri sıfırlandı ve yeniden yüklendi.");
+  }
+
+  /*************** UTIL ***************/
+  function formatTimeAgo(timestamp) {
+    const diffMs = Date.now() - timestamp;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffH = Math.floor(diffMin / 60);
+    const diffD = Math.floor(diffH / 24);
+
+    if (diffMin < 1) return "az önce";
+    if (diffMin < 60) return diffMin + " dk önce";
+    if (diffH < 24) return diffH + " sa önce";
+    if (diffD < 7) return diffD + " gün önce";
+    const date = new Date(timestamp);
+    return (
+      date.getDate().toString().padStart(2, "0") +
+      "." +
+      (date.getMonth() + 1).toString().padStart(2, "0") +
+      "." +
+      date.getFullYear()
+    );
+  }
+
+  function getUserById(id) {
+    return state.data.users.find(u => u.id === id) || { name: "Bilinmiyor", role: "Üye" };
+  }
+
+  function getCategoryById(id) {
+    return state.data.categories.find(c => c.id === id);
+  }
+
+  function getThreadById(id) {
+    return state.data.threads.find(t => t.id === id);
+  }
+
+  function generateId(prefix) {
+    return prefix + Math.random().toString(36).slice(2, 9);
+  }
+
+  /*************** RENDER: SIDEBAR ***************/
+  function renderUserBox() {
+    const userSelect = document.getElementById("userSelect");
+    const avatar = document.getElementById("currentUserAvatar");
+    const label = document.getElementById("currentUserLabel");
+    const roleLabel = document.getElementById("currentUserRole");
+    const todayStats = document.getElementById("todayStats");
+    const totalStats = document.getElementById("totalStats");
+
+    userSelect.innerHTML = "";
+    state.data.users.forEach(u => {
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.textContent = u.name;
+      userSelect.appendChild(opt);
+    });
+    userSelect.value = state.currentUserId;
+
+    const user = getUserById(state.currentUserId);
+    avatar.textContent = user.name.charAt(0).toUpperCase();
+    label.textContent = user.name + " @" + user.id;
+    roleLabel.textContent = user.role;
+
+    todayStats.textContent = state.todayPostCount + " gönderi";
+    totalStats.textContent = state.data.stats.totalPosts + " gönderi";
+
+    userSelect.onchange = () => {
+      state.currentUserId = userSelect.value;
+      renderUserBox();
+      pushNotification("Sistem", "Aktif kullanıcı değiştirildi: " + getUserById(state.currentUserId).name);
+    };
+  }
+
+  function renderCategories() {
+    const list = document.getElementById("categoryList");
+    list.innerHTML = "";
+
+    const allItem = document.createElement("div");
+    allItem.className = "category-item" + (state.activeCategoryId === "all" ? " active" : "");
+    allItem.innerHTML = `
+      <div class="category-name">
+        <div class="category-dot" style="background:#93c5fd;box-shadow:0 0 10px rgba(59,130,246,0.9);"></div>
+        <span>Tümü</span>
+      </div>
+      <div class="category-count">${state.data.threads.length}</div>
+    `;
+    allItem.onclick = () => {
+      state.activeCategoryId = "all";
+      renderAll();
+    };
+    list.appendChild(allItem);
+
+    state.data.categories.forEach(cat => {
+      const count = state.data.threads.filter(t => t.categoryId === cat.id).length;
+      const el = document.createElement("div");
+      el.className = "category-item" + (state.activeCategoryId === cat.id ? " active" : "");
+      el.innerHTML = `
+        <div class="category-name">
+          <div class="category-dot"></div>
+          <span>${cat.name}</span>
+        </div>
+        <div class="category-count">${count}</div>
+      `;
+      el.onclick = () => {
+        state.activeCategoryId = cat.id;
+        renderAll();
+      };
+      list.appendChild(el);
+    });
+
+    document.getElementById("threadCountLabel").textContent = state.data.threads.length;
+    document.getElementById("postCountLabel").textContent = state.data.stats.totalPosts;
+  }
+
+  /*************** RENDER: THREAD LIST ***************/
+  function filterAndSortThreads() {
+    let threads = [...state.data.threads];
+
+    if (state.activeCategoryId !== "all") {
+      threads = threads.filter(t => t.categoryId === state.activeCategoryId);
+    }
+
+    if (state.searchTerm.trim() !== "") {
+      const term = state.searchTerm.toLowerCase();
+      threads = threads.filter(t => {
+        const inTitle = t.title.toLowerCase().includes(term);
+        const inBody = t.body.toLowerCase().includes(term);
+        const inTags = (t.tags || []).some(tag => tag.toLowerCase().includes(term));
+        return inTitle || inBody || inTags;
+      });
+    }
+
+    if (state.sortMode === "latest") {
+      threads.sort((a, b) => b.lastActivityAt - a.lastActivityAt);
+    } else if (state.sortMode === "hot") {
+      threads.sort((a, b) => b.likes - a.likes);
+    }
+
+    return threads;
+  }
+
+  function renderThreadList() {
+    const container = document.getElementById("threadList");
+    const summaryLabel = document.getElementById("threadSummaryLabel");
+    const chipFilterInfo = document.getElementById("chipFilterInfo");
+    const chipSearchInfo = document.getElementById("chipSearchInfo");
+    const breadcrumbCategory = document.getElementById("breadcrumbCategory");
+
+    const threads = filterAndSortThreads();
+
+    container.innerHTML = "";
+    if (threads.length === 0) {
+      container.innerHTML = `<div class="empty-state">Bu filtreyle hiç konu yok. Farklı kategori seç veya aramayı temizle.</div>`;
+    } else {
+      threads.forEach(t => {
+        const cat = getCategoryById(t.categoryId);
+        const author = getUserById(t.authorId);
+        const postsCount = t.posts.length;
+        const el = document.createElement("div");
+        const hotClass = t.likes >= 5 ? "hot" : "";
+        el.className = "thread-item";
+        el.innerHTML = `
+          <div>
+            <div class="thread-title">
+              <span>${t.title}</span>
+              <span class="badge-cat">${cat ? cat.name : "Kategori yok"}</span>
+            </div>
+            <div class="thread-meta">
+              <span><strong>${author.name}</strong> • ${formatTimeAgo(t.createdAt)}</span> ·
+              <span>${(t.tags || []).map(tag => "#" + tag).join(" ")}</span>
+            </div>
+          </div>
+          <div class="thread-stats">
+            <div class="stat-pill ${hotClass}">
+              <span>🔥</span>
+              <strong>${t.likes}</strong>
+              <span>beğeni</span>
+            </div>
+            <div class="stat-pill">
+              <span>💬</span>
+              <strong>${postsCount}</strong>
+              <span>mesaj</span>
+            </div>
+            <div style="font-size:10px;">${formatTimeAgo(t.lastActivityAt)}</div>
+          </div>
+        `;
+        el.onclick = () => {
+          state.activeThreadId = t.id;
+          renderThreadView();
+          document.getElementById("activeThreadInfo").textContent =
+            "Seçili: " + t.title.slice(0, 32) + (t.title.length > 32 ? "..." : "");
+        };
+        container.appendChild(el);
+      });
+    }
+
+    const total = state.data.threads.length;
+    const filtered = threads.length;
+    summaryLabel.textContent = `(${filtered} / ${total})`;
+
+    // filter chip
+    if (state.activeCategoryId === "all") {
+      chipFilterInfo.textContent = "Filtre: Tüm konular";
+      breadcrumbCategory.textContent = "Tümü";
+    } else {
+      const cat = getCategoryById(state.activeCategoryId);
+      chipFilterInfo.textContent = "Filtre: " + (cat ? cat.name : "Bilinmeyen");
+      breadcrumbCategory.textContent = cat ? cat.name : "Kategori";
+    }
+
+    if (state.searchTerm.trim() === "") {
+      chipSearchInfo.textContent = "Arama yok";
+    } else {
+      chipSearchInfo.textContent = 'Arama: "' + state.searchTerm.slice(0, 24) + '"';
+    }
+  }
+
+  /*************** RENDER: THREAD VIEW ***************/
+  function renderThreadView() {
+    const container = document.getElementById("threadViewContent");
+    const hint = document.getElementById("threadViewHint");
+    const backBtn = document.getElementById("backToListBtn");
+
+    const thread = state.activeThreadId && getThreadById(state.activeThreadId);
+    if (!thread) {
+      container.innerHTML = `
+        <div class="empty-state">
+          Henüz bir konu seçmedin. Soldan bir konu seç veya
+          <span class="inline-link" id="openNewThreadInline">yeni bir konu başlat</span>.
+        </div>
+      `;
+      hint.textContent = "(Bir konu seçin)";
+      backBtn.style.display = "none";
+
+      const inlineBtn = document.getElementById("openNewThreadInline");
+      if (inlineBtn) {
+        inlineBtn.onclick = openModal;
+      }
+      return;
+    }
+
+    hint.textContent = "";
+    backBtn.style.display = "inline-flex";
+
+    const author = getUserById(thread.authorId);
+    const cat = getCategoryById(thread.categoryId);
+
+    let tagsHtml = "";
+    (thread.tags || []).forEach(tag => {
+      tagsHtml += `<span class="tag">#${tag}</span>`;
+    });
+
+    const postsHtml = thread.posts
+      .map(post => {
+        const user = getUserById(post.authorId);
+        const isOp = post.authorId === thread.authorId;
+        return `
+          <article class="post-item">
+            <div class="post-meta-col">
+              <strong>${user.name}</strong>
+              <div>${formatTimeAgo(post.createdAt)}</div>
+              <div>${isOp ? '<span class="badge-op">Konu Sahibi</span>' : ""}</div>
+            </div>
+            <div class="post-body-col">
+              <div>${post.body.replace(/\n/g, "<br>")}</div>
+              <div class="post-actions">
+                <button class="btn-ghost" data-like-post="${post.id}">
+                  👍 ${post.likes}
+                </button>
+                <span class="label-pill">ID: ${post.id}</span>
+              </div>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+
+    container.innerHTML = `
+      <header class="thread-header">
+        <div class="thread-header-title">${thread.title}</div>
+        <div class="thread-header-meta">
+          <span><strong>${author.name}</strong> (${author.role})</span>
+          <span>• ${formatTimeAgo(thread.createdAt)} açıldı</span>
+          <span>• Kategori: ${cat ? cat.name : "Yok"}</span>
+        </div>
+        <div class="thread-tags">
+          <span class="tag-primary">ID: ${thread.id}</span>
+          ${tagsHtml}
+        </div>
+        <div class="thread-body">${thread.body.replace(/\n/g, "<br>")}</div>
+        <div class="thread-actions">
+          <button class="btn-ghost" id="likeThreadBtn">
+            ❤️ Beğen (${thread.likes})
+          </button>
+          <span class="hint">${thread.posts.length} cevap • Son aktivite: ${formatTimeAgo(
+            thread.lastActivityAt
+          )}</span>
+        </div>
+      </header>
+
+      <section class="posts-list" id="postsList">
+        ${
+          thread.posts.length > 0
+            ? postsHtml
+            : '<div class="empty-state">Bu konuda henüz cevap yok. İlk yorumu sen yaz!</div>'
+        }
+      </section>
+
+      <section class="new-reply">
+        <textarea id="replyText" placeholder="Bu konu hakkında düşüncelerini yaz..."></textarea>
+        <div class="new-reply-row">
+          <span class="hint">Shift+Enter ile satır ekle, Enter ile hızlı gönder.</span>
+          <button class="btn btn-primary" id="sendReplyBtn">Cevap Gönder</button>
+        </div>
+      </section>
+    `;
+
+    // events
+    document.getElementById("likeThreadBtn").onclick = () => {
+      thread.likes += 1;
+      state.data.stats.totalPosts = state.data.stats.totalPosts; // dokunma ama gerekirse
+      saveData();
+      pushNotification(
+        getUserById(state.currentUserId).name,
+        `"${thread.title}" başlığını beğendin.`
+      );
+      renderAll();
+      state.activeThreadId = thread.id;
+      renderThreadView();
+    };
+
+    const postsListEl = document.getElementById("postsList");
+    postsListEl.querySelectorAll("[data-like-post]").forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const postId = btn.getAttribute("data-like-post");
+        const p = thread.posts.find(pp => pp.id === postId);
+        if (p) {
+          p.likes += 1;
+          saveData();
+          pushNotification(
+            getUserById(state.currentUserId).name,
+            `"${thread.title}" içindeki bir mesajı beğendin.`
+          );
+          renderThreadView();
+          renderThreadList();
+        }
+      };
+    });
+
+    const replyText = document.getElementById("replyText");
+    const sendReplyBtn = document.getElementById("sendReplyBtn");
+    sendReplyBtn.onclick = () => sendReply(thread);
+    replyText.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendReply(thread);
+      }
+    });
+
+    document.getElementById("backToListBtn").onclick = () => {
+      state.activeThreadId = null;
+      renderThreadView();
+      document.getElementById("activeThreadInfo").textContent = "Seçili konu yok";
+    };
+  }
+
+  function sendReply(thread) {
+    const input = document.getElementById("replyText");
+    const text = input.value.trim();
+    if (!text) return;
+
+    const post = {
+      id: generateId("p"),
+      authorId: state.currentUserId,
+      createdAt: Date.now(),
+      body: text,
+      likes: 0
+    };
+    thread.posts.push(post);
+    thread.lastActivityAt = Date.now();
+    state.data.stats.totalPosts += 1;
+    state.todayPostCount += 1;
+    saveData();
+
+    pushNotification(
+      getUserById(state.currentUserId).name,
+      `"${thread.title}" başlığına yeni bir cevap yazdın.`
+    );
+
+    input.value = "";
+    renderThreadList();
+    renderThreadView();
+    renderUserBox();
+  }
+
+  /*************** NOTIFICATIONS ***************/
+  function pushNotification(authorName, message) {
+    const notif = {
+      id: generateId("n"),
+      authorName,
+      message,
+      createdAt: Date.now()
+    };
+    state.notifications.unshift(notif);
+    if (state.notifications.length > 40) state.notifications.pop();
+    renderNotifications();
+  }
+
+  function renderNotifications() {
+    const list = document.getElementById("notifList");
+    list.innerHTML = "";
+
+    if (state.notifications.length === 0) {
+      list.innerHTML =
+        '<div class="notif-empty">Henüz bildirimin yok. Forumda bir hareket yap, burada gözüksün.</div>';
+      return;
+    }
+
+    state.notifications.forEach(n => {
+      const el = document.createElement("div");
+      el.className = "notif-item";
+      el.innerHTML = `
+        <div>${n.message}</div>
+        <div class="notif-meta">
+          <span class="notif-label">${n.authorName}</span>
+          <span>${formatTimeAgo(n.createdAt)}</span>
+        </div>
+      `;
+      list.appendChild(el);
+    });
+  }
+
+  /*************** MODAL (NEW THREAD) ***************/
+  function openModal() {
+    document.getElementById("modalBackdrop").style.display = "flex";
+    document.getElementById("modalError").textContent = "";
+    document.getElementById("newThreadTitle").value = "";
+    document.getElementById("newThreadBody").value = "";
+    document.getElementById("newThreadTags").value = "";
+    document.getElementById("newThreadTitle").focus();
+  }
+
+  function closeModal() {
+    document.getElementById("modalBackdrop").style.display = "none";
+  }
+
+  function renderModalCategoryOptions() {
+    const select = document.getElementById("newThreadCategory");
+    select.innerHTML = "";
+    state.data.categories.forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat.id;
+      opt.textContent = cat.name;
+      select.appendChild(opt);
+    });
+  }
+
+  function createThread() {
+    const titleEl = document.getElementById("newThreadTitle");
+    const catEl = document.getElementById("newThreadCategory");
+    const bodyEl = document.getElementById("newThreadBody");
+    const tagsEl = document.getElementById("newThreadTags");
+    const errorEl = document.getElementById("modalError");
+
+    const title = titleEl.value.trim();
+    const body = bodyEl.value.trim();
+    const categoryId = catEl.value;
+    const tags = tagsEl.value
+      .split(",")
+      .map(t => t.trim())
+      .filter(Boolean);
+
+    if (title.length < 4) {
+      errorEl.textContent = "Başlık en az 4 karakter olmalı.";
+      return;
+    }
+    if (body.length < 8) {
+      errorEl.textContent = "İlk mesaj biraz daha detaylı olsun.";
+      return;
+    }
+
+    const thread = {
+      id: generateId("t"),
+      title,
+      categoryId,
+      authorId: state.currentUserId,
+      createdAt: Date.now(),
+      lastActivityAt: Date.now(),
+      likes: 0,
+      tags,
+      body,
+      posts: []
+    };
+    state.data.threads.unshift(thread);
+    state.data.stats.totalThreads += 1;
+
+    saveData();
+    closeModal();
+    pushNotification(
+      getUserById(state.currentUserId).name,
+      `"${thread.title}" isimli yeni bir konu açtın.`
+    );
+
+    state.activeCategoryId = "all";
+    state.activeThreadId = thread.id;
+    renderAll();
+    renderThreadView();
+  }
+
+  /*************** SEARCH & SORT ***************/
+  function setupSearchAndSort() {
+    const searchInput = document.getElementById("searchInput");
+    const sortLatestBtn = document.getElementById("sortLatestBtn");
+    const sortHotBtn = document.getElementById("sortHotBtn");
+
+    searchInput.oninput = () => {
+      state.searchTerm = searchInput.value;
+      renderThreadList();
+    };
+
+    sortLatestBtn.onclick = () => {
+      state.sortMode = "latest";
+      pushNotification("Sistem", "Konular en yeni tarihe göre sıralandı.");
+      renderThreadList();
+    };
+
+    sortHotBtn.onclick = () => {
+      state.sortMode = "hot";
+      pushNotification("Sistem", "Konular beğeni sayısına göre sıralandı.");
+      renderThreadList();
+    };
+  }
+
+  /*************** SESSION TIMER ***************/
+  function startSessionTimer() {
+    const el = document.getElementById("sessionTime");
+    setInterval(() => {
+      const diffMin = Math.floor((Date.now() - state.sessionStart) / 60000);
+      el.textContent = diffMin + " dk";
+    }, 60000);
+  }
+
+  /*************** GLOBAL RENDER ***************/
+  function renderAll() {
+    renderUserBox();
+    renderCategories();
+    renderThreadList();
+    renderThreadView();
+    renderNotifications();
+  }
+
+  /*************** INIT ***************/
+  window.addEventListener("DOMContentLoaded", () => {
+    loadData();
+
+    document.getElementById("newThreadBtn").onclick = openModal;
+    document.getElementById("openNewThreadFromEmpty").onclick = openModal;
+    document.getElementById("closeModalBtn").onclick = closeModal;
+    document.getElementById("modalBackdrop").onclick = (e) => {
+      if (e.target.id === "modalBackdrop") closeModal();
+    };
+
+    document.getElementById("createThreadBtn").onclick = createThread;
+    document.getElementById("draftBtn").onclick = () => {
+      document.getElementById("modalError").textContent =
+        "Taslak özelliği bu demoda sadece süs 😊";
+      setTimeout(() => {
+        document.getElementById("modalError").textContent = "";
+      }, 2000);
+    };
+
+    document.getElementById("resetForumBtn").onclick = () => {
+      if (confirm("Tüm veriler sıfırlansın mı? (Demo verileri yeniden yüklenecek)")) {
+        resetData();
+      }
+    };
+
+    document.getElementById("clearNotificationsBtn").onclick = () => {
+      state.notifications = [];
+      renderNotifications();
+    };
+
+    renderModalCategoryOptions();
+    setupSearchAndSort();
+    startSessionTimer();
+    renderAll();
+
+    pushNotification("Sistem", "Mini forum yüklendi. Keyifli keşifler!");
+  });
+</script>
+</body>
+</html>
